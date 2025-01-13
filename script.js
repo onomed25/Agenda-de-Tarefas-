@@ -1,5 +1,21 @@
 let todos = [];
 
+// Função para carregar tarefas do cookie
+function loadTodosFromCookies() {
+  const cookies = document.cookie.split('; ').find(cookie => cookie.startsWith('todos='));
+  if (cookies) {
+    const todosJson = decodeURIComponent(cookies.split('=')[1]);
+    todos = JSON.parse(todosJson);
+  }
+  renderTodos();
+}
+
+// Função para salvar tarefas no cookie
+function saveTodosInCookies() {
+  const todosJson = JSON.stringify(todos);
+  document.cookie = `todos=${encodeURIComponent(todosJson)}; path=/; max-age=31536000`; // O cookie expira em 1 ano
+}
+
 // Função para adicionar tarefa
 function addTodo() {
   const input = document.getElementById('new-todo');
@@ -13,6 +29,7 @@ function addTodo() {
     };
     todos.push(newTodo);
     input.value = '';
+    saveTodosInCookies(); // Salva os dados no cookie
     renderTodos();
   }
 }
@@ -21,18 +38,21 @@ function addTodo() {
 function toggleTodo(id) {
   const todo = todos.find(t => t.id === id);
   todo.completed = !todo.completed;
+  saveTodosInCookies(); // Salva os dados no cookie
   renderTodos();
 }
 
 // Função para excluir tarefa
 function deleteTodo(id) {
   todos = todos.filter(t => t.id !== id);
+  saveTodosInCookies(); // Salva os dados no cookie
   renderTodos();
 }
 
 // Função para desmarcar todas as tarefas
 function unmarkAll() {
   todos.forEach(todo => todo.completed = false);
+  saveTodosInCookies(); // Salva os dados no cookie
   renderTodos();
 }
 
@@ -69,3 +89,6 @@ function renderTodos() {
 
   updateProgress();
 }
+
+// Carregar tarefas ao carregar a página
+window.onload = loadTodosFromCookies;
