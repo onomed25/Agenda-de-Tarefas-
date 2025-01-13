@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Tarefas</title>
+  <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+
+  <div class="container">
+    <h1>Lista de Tarefas</h1>
+
+    <!-- Progresso -->
+    <div class="progress-ring">
+      <svg>
+        <circle class="background-circle" r="36" cx="40" cy="40"></circle>
+        <circle class="progress-circle" r="36" cx="40" cy="40" stroke-dasharray="226.195" stroke-dashoffset="0"></circle>
+      </svg>
+      <span id="progress-text" style="position: absolute; font-size: 18px; font-weight: bold; color: #3498db;">0%</span>
+    </div>
+
+    <!-- Input e Botão -->
+    <div class="input-container">
+      <input type="text" id="new-todo" placeholder="Adicionar nova tarefa..." />
+      <button onclick="addTodo()">Adicionar</button>
+    </div>
+
+    <!-- Lista de Tarefas -->
+    <ul class="task-list" id="task-list"></ul>
+
+    <!-- Botão de Desmarcar Todas -->
+    <button class="unmark-all-btn" onclick="unmarkAll()">Desmarcar Todas</button>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

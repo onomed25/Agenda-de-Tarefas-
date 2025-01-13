@@ -1,0 +1,130 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f3f4f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 300px;
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 16px;
+    color: #4a4a4a;
+  }
+  .progress-ring {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .progress-ring svg {
+    transform: rotate(-90deg);
+    width: 80px;
+    height: 80px;
+  }
+  .progress-ring circle {
+    fill: transparent;
+    stroke-width: 8;
+  }
+  .progress-ring .background-circle {
+    stroke: #e0e0e0;
+  }
+  .progress-ring .progress-circle {
+    stroke: #3498db;
+    transition: stroke-dashoffset 0.3s ease;
+  }
+  .task-list {
+    margin-bottom: 20px;
+    list-style-type: none;
+    padding: 0;
+  }
+  .task-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+  .task-list li:hover {
+    background-color: #f1f1f1;
+  }
+  .task-list .completed {
+    text-decoration: line-through;
+    color: #a0a0a0;
+  }
+  .task-list button {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 14px; 
+    padding: 5px 8px; 
+    border-radius: 4px; 
+    transition: background-color 0.3s ease;
+  }
+  .task-list button:hover {
+    background-color: #f1f1f1; 
+  }
+  .input-container {
+    display: flex;
+    margin-bottom: 20px;
+  }
+  .input-container input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-right: 8px;
+  }
+  .input-container button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .input-container button:hover {
+    background-color: #2980b9;
+  }
+  #progress-text {
+    position: absolute;
+    font-size: 18px;
+    font-weight: bold;
+    color: #3498db;
+    top: 40%;
+    transform: translateY(-10%);
+  }
+  .unmark-all-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 100%;
+    margin-top: 20px;
+  }
+  .unmark-all-btn:hover {
+    background-color: #2980b9;
+    transform: scale(1.05); 
+  }
+  .unmark-all-btn:active {
+    background-color: #1c6ea4; 
+    transform: scale(0.98); 
+  }
