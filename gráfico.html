@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gráfico de Tarefas Concluídas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    canvas {
+      max-width: 400px;
+      width: 100%;
+    }
+    .back-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .back-btn:hover {
+      background-color: #2980b9;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Tarefas Concluídas</h1>
+    <canvas id="dailyTasksChart"></canvas>
+    <button class="back-btn" onclick="window.location.href='index.html'">Voltar</button>
+  </div>
+
+  <script>
+    let todos = [];
+    let dailyStats = { today: 0, yesterday: 0 };
+
+    // Função para carregar dados do cookie
+    function loadDataFromCookies() {
+      const todosCookie = document.cookie.split('; ').find(cookie => cookie.startsWith('todos='));
+      if (todosCookie) {
+        const todosJson = decodeURIComponent(todosCookie.split('=')[1]);
+        todos = JSON.parse(todosJson);
+      }
+
+      const statsCookie = document.cookie.split('; ').find(cookie => cookie.startsWith('dailyStats='));
+      if (statsCookie) {
+        const statsJson = decodeURIComponent(statsCookie.split('=')[1]);
+        dailyStats = JSON.parse(statsJson);
+      } else {
+        // Se não houver stats, calcula com base nos todos atuais
+        dailyStats.today = todos.filter(todo => todo.completed).length;
+      }
+
+      checkDayChange();
+      renderChart();
+    }
+
+    // Função para verificar se o dia mudou
+    function checkDayChange() {
+      const today = new Date().toDateString();
+      const lastDate = localStorage.getItem('lastDate') || today;
+
+      if (lastDate !== today) {
+        dailyStats.yesterday = dailyStats.today;
+        dailyStats.today = todos.filter(todo => todo.completed).length;
+        localStorage.setItem('lastDate', today);
+        saveStatsInCookies();
+      }
+    }
+
+    // Função para salvar estatísticas no cookie
+    function saveStatsInCookies() {
+      const statsJson = JSON.stringify(dailyStats);
+      document.cookie = `dailyStats=${encodeURIComponent(statsJson)}; path=/; max-age=31536000`;
+    }
+
+    // Função para renderizar o gráfico
+    function renderChart() {
+      const ctx = document.getElementById('dailyTasksChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Ontem', 'Hoje'],
+          datasets: [{
+            label: 'Tarefas Concluídas',
+            data: [dailyStats.yesterday, dailyStats.today],
+            backgroundColor: ['#3498db', '#2ecc71'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1 // Apenas valores inteiros
+              }
+            }
+          },
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false // Esconde a legenda
+            }
+          }
+        }
+      });
+    }
+
+    // Carregar dados ao abrir a página
+    window.onload = loadDataFromCookies;
+  </script>
+</body>
+</html>
