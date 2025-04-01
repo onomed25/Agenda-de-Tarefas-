@@ -2,13 +2,13 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/html/$1"  
+      "destination": "/html/$1.html"
     }
   ],
   "redirects": [
     {
-      "source": "/html/(.*)",
-      "destination": "/$1",  
+      "source": "/html/(.*)\\.html",
+      "destination": "/$1",
       "permanent": true
     }
   ]
