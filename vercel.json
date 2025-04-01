@@ -1,14 +1,14 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/html/$1.html"
+      "source": "/:path*",
+      "destination": "/html/:path*.html"
     }
   ],
   "redirects": [
     {
-      "source": "/html/(.*)\\.html",
-      "destination": "/$1",
+      "source": "/:path*.html",
+      "destination": "/:path*",
       "permanent": true
     }
   ]
