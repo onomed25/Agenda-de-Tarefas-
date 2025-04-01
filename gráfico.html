@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gráfico de Tarefas Concluídas</title>
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
@@ -12,124 +17,125 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
+      flex-direction: column;
+      padding: 15px;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #3498db;
+      color: white;
+      padding: 10px 20px;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px 10px 0 0;
+    }
+    .graph-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .graph-btn:hover {
+      text-decoration: underline;
     }
     .container {
       background-color: white;
       padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       text-align: center;
+      width: 100%;
+      max-width: 400px;
     }
     h1 {
       color: #333;
-      margin-bottom: 20px;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 350px;
+      height: 250px;
+      margin: 0 auto;
     }
     canvas {
-      max-width: 400px;
-      width: 100%;
+      width: 100% !important;
+      height: 100% !important;
     }
     .back-btn {
-      margin-top: 20px;
-      padding: 10px 20px;
+      margin-top: 15px;
+      padding: 12px;
       background-color: #3498db;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      width: 100%;
+      font-size: 14px;
+      transition: background 0.3s;
     }
     .back-btn:hover {
       background-color: #2980b9;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #3498db;
+      padding: 12px 16px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .graph-btn {
+      background-color: white;
+      color: #3498db;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      font-size: 14px;
+    }
+    .graph-btn:hover {
+      background-color: #ecf0f1;
+      transform: scale(1.05);
+    }
+    .container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 20px;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>Tarefas Concluídas</h1>
-    <canvas id="dailyTasksChart"></canvas>
-    <button class="back-btn" onclick="window.location.href='index.html'">Voltar</button>
+  <div class="navbar">
+    <button class="graph-btn" onclick="window.location.href='index.html'">📋 Lista de Tarefas</button>
+    <span>📊 Gráfico</span>
+  </div>
+    </div>
+
+    <!-- Gráfico -->
+    <div class="chart-container">
+      <canvas id="dailyTasksChart"></canvas>
+    </div>
   </div>
 
-  <script>
-    let todos = [];
-    let dailyStats = { today: 0, yesterday: 0 };
-
-    // Função para carregar dados do cookie
-    function loadDataFromCookies() {
-      const todosCookie = document.cookie.split('; ').find(cookie => cookie.startsWith('todos='));
-      if (todosCookie) {
-        const todosJson = decodeURIComponent(todosCookie.split('=')[1]);
-        todos = JSON.parse(todosJson);
-      }
-
-      const statsCookie = document.cookie.split('; ').find(cookie => cookie.startsWith('dailyStats='));
-      if (statsCookie) {
-        const statsJson = decodeURIComponent(statsCookie.split('=')[1]);
-        dailyStats = JSON.parse(statsJson);
-      } else {
-        // Se não houver stats, calcula com base nos todos atuais
-        dailyStats.today = todos.filter(todo => todo.completed).length;
-      }
-
-      checkDayChange();
-      renderChart();
-    }
-
-    // Função para verificar se o dia mudou
-    function checkDayChange() {
-      const today = new Date().toDateString();
-      const lastDate = localStorage.getItem('lastDate') || today;
-
-      if (lastDate !== today) {
-        dailyStats.yesterday = dailyStats.today;
-        dailyStats.today = todos.filter(todo => todo.completed).length;
-        localStorage.setItem('lastDate', today);
-        saveStatsInCookies();
-      }
-    }
-
-    // Função para salvar estatísticas no cookie
-    function saveStatsInCookies() {
-      const statsJson = JSON.stringify(dailyStats);
-      document.cookie = `dailyStats=${encodeURIComponent(statsJson)}; path=/; max-age=31536000`;
-    }
-
-    // Função para renderizar o gráfico
-    function renderChart() {
-      const ctx = document.getElementById('dailyTasksChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Ontem', 'Hoje'],
-          datasets: [{
-            label: 'Tarefas Concluídas',
-            data: [dailyStats.yesterday, dailyStats.today],
-            backgroundColor: ['#3498db', '#2ecc71'],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 1 // Apenas valores inteiros
-              }
-            }
-          },
-          responsive: true,
-          plugins: {
-            legend: {
-              display: false // Esconde a legenda
-            }
-          }
-        }
-      });
-    }
-
-    // Carregar dados ao abrir a página
-    window.onload = loadDataFromCookies;
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>

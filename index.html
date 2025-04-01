@@ -4,37 +4,81 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lista de Tarefas</title>
-<button onclick="window.location.href='gráfico.html'">Ver Gráfico</button>
   <link rel="stylesheet" href="style.css"> 
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #3498db;
+      padding: 12px 16px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .graph-btn {
+      background-color: white;
+      color: #3498db;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      font-size: 14px;
+    }
+    .graph-btn:hover {
+      background-color: #ecf0f1;
+      transform: scale(1.05);
+    }
+    .container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-
+  <div class="navbar">
+    <span>📋 Lista de Tarefas</span>
+    <button class="graph-btn" onclick="window.location.href='gráfico.html'">📊 Gráfico</button>
+  </div>
   <div class="container">
-    <h1>Lista de Tarefas</h1>
-
-    <!-- Progresso -->
     <div class="progress-ring">
       <svg>
         <circle class="background-circle" r="36" cx="40" cy="40"></circle>
         <circle class="progress-circle" r="36" cx="40" cy="40" stroke-dasharray="226.195" stroke-dashoffset="0"></circle>
       </svg>
-      <span id="progress-text" style="position: absolute; font-size: 18px; font-weight: bold; color: #3498db;">0%</span>
+      <span id="progress-text">0%</span>
     </div>
-
-    <!-- Input e Botão -->
     <div class="input-container">
       <input type="text" id="new-todo" placeholder="Adicionar nova tarefa..." />
-      <button onclick="addTodo()">Adicionar</button>
+      <button onclick="addTodo()">+</button>
     </div>
-
-    <!-- Lista de Tarefas -->
     <ul class="task-list" id="task-list"></ul>
-
-    <!-- Botão de Desmarcar Todas -->
     <button class="unmark-all-btn" onclick="unmarkAll()">Desmarcar Todas</button>
-
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>
