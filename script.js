@@ -68,22 +68,34 @@ function saveDataInCookies() {
 }
 
 function addTodo() {
-    const input = document.getElementById('new-todo');
-    if (!input) return;
-    
-    const newTodoText = input.value.trim();
-    if (newTodoText) {
+    const taskInput = document.getElementById('new-todo');
+    const timeInput = document.getElementById('task-time');
+    if (!taskInput || !timeInput) return;
+
+    const taskText = taskInput.value.trim();
+    const taskTime = timeInput.value;
+
+    if (taskText && taskTime) {
         const newTodo = {
             id: Date.now(),
-            text: newTodoText,
-            completed: false,
+            text: taskText,
+            time: taskTime,
+            completed: false
         };
         todos.push(newTodo);
-        input.value = '';
+
+        // Ordena as tarefas pelo horário
+        todos.sort((a, b) => a.time.localeCompare(b.time));
+
         updateTodayStats();
         saveDataInCookies();
         renderTodos();
         renderChart();
+
+        taskInput.value = '';
+        timeInput.value = '';
+    } else {
+        alert('Por favor, adicione uma tarefa e um horário.');
     }
 }
 
@@ -151,13 +163,11 @@ function renderTodos() {
     todos.forEach(todo => {
         const li = document.createElement('li');
         li.className = todo.completed ? 'completed' : '';
-
         li.innerHTML = `
             <input type="checkbox" ${todo.completed ? 'checked' : ''} onclick="toggleTodo(${todo.id})" />
-            <span>${todo.text}</span>
+            <span>${todo.text} - ${todo.time}</span>
             <button onclick="deleteTodo(${todo.id})">🗑️</button>
         `;
-        
         taskList.appendChild(li);
     });
 
@@ -193,7 +203,7 @@ function renderChart() {
     }
 
     try {
-        const config = {
+        window.myChart = new Chart(context, {
             type: 'bar',
             data: {
                 labels: labels,
@@ -215,28 +225,27 @@ function renderChart() {
                     }
                 },
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                const completed = data[index];
+                                const percentage = percentages[index];
+                                return `Concluídas: ${completed} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        console.log(`Dia: ${labels[index]}, Porcentagem: ${percentages[index]}%`);
+                    }
                 }
             }
-        };
-
-        // Verifica se o ChartDataLabels está disponível
-        if (typeof ChartDataLabels !== 'undefined') {
-            Chart.register(ChartDataLabels);
-            config.options.plugins.datalabels = {
-                anchor: 'end',
-                align: 'top',
-                formatter: (value, context) => {
-                    return percentages[context.dataIndex] + '%';
-                },
-                color: '#000',
-                font: {
-                    weight: 'bold'
-                }
-            };
-        }
-
-        window.myChart = new Chart(context, config);
+        });
     } catch (error) {
         console.error('Erro ao criar o gráfico:', error);
     }
