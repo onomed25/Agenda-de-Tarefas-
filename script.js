@@ -1,19 +1,45 @@
 let todos = [];
+let dailyStats = { today: 0, yesterday: 0 }; // Armazena as tarefas concluídas por dia
 
-// Função para carregar tarefas do cookie
+// Função para carregar tarefas e estatísticas do cookie
 function loadTodosFromCookies() {
-  const cookies = document.cookie.split('; ').find(cookie => cookie.startsWith('todos='));
-  if (cookies) {
-    const todosJson = decodeURIComponent(cookies.split('=')[1]);
+  const todosCookie = document.cookie.split('; ').find(cookie => cookie.startsWith('todos='));
+  if (todosCookie) {
+    const todosJson = decodeURIComponent(todosCookie.split('=')[1]);
     todos = JSON.parse(todosJson);
   }
+
+  const statsCookie = document.cookie.split('; ').find(cookie => cookie.startsWith('dailyStats='));
+  if (statsCookie) {
+    const statsJson = decodeURIComponent(statsCookie.split('=')[1]);
+    dailyStats = JSON.parse(statsJson);
+  }
+
+  checkDayChange(); // Verifica se o dia mudou
   renderTodos();
+  renderChart();
 }
 
-// Função para salvar tarefas no cookie
+// Função para salvar tarefas e estatísticas no cookie
 function saveTodosInCookies() {
   const todosJson = JSON.stringify(todos);
-  document.cookie = `todos=${encodeURIComponent(todosJson)}; path=/; max-age=31536000`; // O cookie expira em 1 ano
+  document.cookie = `todos=${encodeURIComponent(todosJson)}; path=/; max-age=31536000`;
+
+  const statsJson = JSON.stringify(dailyStats);
+  document.cookie = `dailyStats=${encodeURIComponent(statsJson)}; path=/; max-age=31536000`;
+}
+
+// Função para verificar se o dia mudou e atualizar as estatísticas
+function checkDayChange() {
+  const today = new Date().toDateString();
+  const lastDate = localStorage.getItem('lastDate') || today;
+
+  if (lastDate !== today) {
+    dailyStats.yesterday = dailyStats.today;
+    dailyStats.today = todos.filter(todo => todo.completed).length;
+    localStorage.setItem('lastDate', today);
+    saveTodosInCookies();
+  }
 }
 
 // Função para adicionar tarefa
@@ -29,7 +55,7 @@ function addTodo() {
     };
     todos.push(newTodo);
     input.value = '';
-    saveTodosInCookies(); // Salva os dados no cookie
+    saveTodosInCookies();
     renderTodos();
   }
 }
@@ -38,22 +64,28 @@ function addTodo() {
 function toggleTodo(id) {
   const todo = todos.find(t => t.id === id);
   todo.completed = !todo.completed;
-  saveTodosInCookies(); // Salva os dados no cookie
+  dailyStats.today = todos.filter(t => t.completed).length; // Atualiza as tarefas concluídas hoje
+  saveTodosInCookies();
   renderTodos();
+  renderChart();
 }
 
 // Função para excluir tarefa
 function deleteTodo(id) {
   todos = todos.filter(t => t.id !== id);
-  saveTodosInCookies(); // Salva os dados no cookie
+  dailyStats.today = todos.filter(t => t.completed).length; // Atualiza as tarefas concluídas hoje
+  saveTodosInCookies();
   renderTodos();
+  renderChart();
 }
 
 // Função para desmarcar todas as tarefas
 function unmarkAll() {
   todos.forEach(todo => todo.completed = false);
-  saveTodosInCookies(); // Salva os dados no cookie
+  dailyStats.today = 0; // Reseta as tarefas concluídas hoje
+  saveTodosInCookies();
   renderTodos();
+  renderChart();
 }
 
 // Função para calcular e atualizar o progresso
@@ -90,5 +122,41 @@ function renderTodos() {
   updateProgress();
 }
 
-// Carregar tarefas ao carregar a página
-window.onload = loadTodosFromCookies;
+// Função para renderizar o gráfico
+function renderChart() {
+  const ctx = document.getElementById('dailyTasksChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Ontem', 'Hoje'],
+      datasets: [{
+        label: 'Tarefas Concluídas',
+        data: [dailyStats.yesterday, dailyStats.today],
+        backgroundColor: ['#3498db', '#2ecc71'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1 // Apenas valores inteiros
+          }
+        }
+      },
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false // Esconde a legenda, já que é autoexplicativo
+        }
+      }
+    }
+  });
+}
+
+// Carregar tarefas e gráfico ao carregar a página
+window.onload = function() {
+  loadTodosFromCookies();
+  renderChart();
+};
