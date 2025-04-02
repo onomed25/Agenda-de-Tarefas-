@@ -3,11 +3,11 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/chart.html',
-  '/style.css',
   '/styles.css',
   '/script.js',
   '/chart.js',
-  '/manifest.json'
+  '/manifest.json',
+  'https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js'
 ];
 
 self.addEventListener('install', event => {
