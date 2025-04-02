@@ -2,9 +2,12 @@ const CACHE_NAME = 'agenda-cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/chart.html',
+  '/style.css',
   '/styles.css',
   '/script.js',
-  '/imagens/icone-192.png'
+  '/chart.js',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', event => {
