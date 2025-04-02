@@ -37,6 +37,18 @@ function checkDayChange() {
     const lastDate = localStorage.getItem('lastDate') || today;
 
     if (lastDate !== today) {
+        // Salva as estatísticas do dia anterior antes de desmarcar
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toDateString();
+        dailyStats[yesterdayStr] = {
+            completed: todos.filter(todo => todo.completed).length, // Salva quantas estavam concluídas
+            total: todos.length
+        };
+
+        // Desmarca todas as tarefas para o novo dia
+        todos.forEach(todo => todo.completed = false);
+
         const newStats = {};
         const todayDate = new Date();
         
@@ -46,7 +58,7 @@ function checkDayChange() {
             const dateStr = date.toDateString();
             if (i === 6) {
                 newStats[dateStr] = {
-                    completed: todos.filter(todo => todo.completed).length,
+                    completed: 0, // Novo dia começa com 0 concluídas
                     total: todos.length
                 };
             } else {
@@ -59,6 +71,8 @@ function checkDayChange() {
         dailyStats = newStats;
         localStorage.setItem('lastDate', today);
         saveDataInCookies();
+        renderTodos();
+        renderChart();
     }
 }
 
@@ -84,7 +98,6 @@ function addTodo() {
         };
         todos.push(newTodo);
 
-        // Ordena as tarefas pelo horário
         todos.sort((a, b) => a.time.localeCompare(b.time));
 
         updateTodayStats();
@@ -151,7 +164,17 @@ function updateProgress() {
     }
 }
 
+function isTaskPage() {
+  return window.location.pathname.indexOf('index.html') !== -1;
+}
+
 function renderTodos() {
+  // Verifica se estamos na página de Lista de Tarefas antes de tentar acessar o elemento 'task-list'
+  if (!isTaskPage()) {
+      console.log('Não estamos na página de Lista de Tarefas. Ignorando renderização das tarefas.');
+      return;
+  }
+    
     const taskList = document.getElementById('task-list');
     if (!taskList) {
         console.error('Elemento task-list não encontrado no DOM');
@@ -162,10 +185,18 @@ function renderTodos() {
 
     todos.forEach(todo => {
         const li = document.createElement('li');
-        li.className = todo.completed ? 'completed' : '';
+        const tremorContent = document.createElement('span');
+        tremorContent.className = 'task-content';
+        tremorContent.textContent = `${todo.text} - ${todo.time}`;
+        if (todo.completed) {
+            tremorContent.classList.add('completed');
+        }
+
         li.innerHTML = `
             <input type="checkbox" ${todo.completed ? 'checked' : ''} onclick="toggleTodo(${todo.id})" />
-            <span>${todo.text} - ${todo.time}</span>
+        `;
+        li.appendChild(tremorContent);
+        li.innerHTML += `
             <button onclick="deleteTodo(${todo.id})">🗑️</button>
         `;
         taskList.appendChild(li);
@@ -175,80 +206,91 @@ function renderTodos() {
 }
 
 function renderChart() {
-    const ctx = document.getElementById('dailyTasksChart');
-    if (!ctx) {
-        console.error('Elemento dailyTasksChart não encontrado no DOM');
-        return;
-    }
+  // Verifica se estamos na página de gráfico (gráfico.html)
+  if (window.location.pathname.indexOf('grafico.html') === -1) {
+      console.log('Este não é a página do gráfico. Ignorando renderização do gráfico.');
+      return;  // Não renderiza o gráfico se não estivermos na página correta
+  }
 
-    const context = ctx.getContext('2d');
-    const today = new Date();
-    const labels = [];
-    const data = [];
-    const percentages = [];
-    const colors = ['#3498db', '#2ecc71', '#e74c3c', '#9b59b6', '#f1c40f', '#e67e22', '#1abc9c'];
+  const ctx = document.getElementById('dailyTasksChart');
+  if (!ctx) {
+      console.error("Elemento 'dailyTasksChart' não encontrado na página de gráfico.");
+      return;
+  }
 
-    for (let i = 0; i < 7; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - (6 - i));
-        const dateStr = date.toDateString();
-        const stats = dailyStats[dateStr] || { completed: 0, total: 0 };
-        labels.push(date.toLocaleDateString('pt-BR', { weekday: 'short' }));
-        data.push(stats.completed);
-        percentages.push(stats.total ? Math.round((stats.completed / stats.total) * 100) : 0);
-    }
+  const context = ctx.getContext('2d');
+  const today = new Date();
+  const labels = [];
+  const data = [];
+  const percentages = [];
+  const colors = ['#3498db', '#2ecc71', '#e74c3c', '#9b59b6', '#f1c40f', '#e67e22', '#1abc9c'];
 
-    if (window.myChart) {
-        window.myChart.destroy();
-    }
+  for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - (6 - i));
+      const dateStr = date.toDateString();
+      const stats = dailyStats[dateStr] || { completed: 0, total: 0 };
+      labels.push(date.toLocaleDateString('pt-BR', { weekday: 'short' }));
+      data.push(stats.completed);
+      percentages.push(stats.total ? Math.round((stats.completed / stats.total) * 100) : 0);
+  }
 
-    try {
-        window.myChart = new Chart(context, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Tarefas Concluídas',
-                    data: data,
-                    backgroundColor: colors,
-                    borderWidth: 1,
-                    borderRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1 }
-                    }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        enabled: true,
-                        callbacks: {
-                            label: function(context) {
-                                const index = context.dataIndex;
-                                const completed = data[index];
-                                const percentage = percentages[index];
-                                return `Concluídas: ${completed} (${percentage}%)`;
-                            }
-                        }
-                    }
-                },
-                onClick: (event, elements) => {
-                    if (elements.length > 0) {
-                        const index = elements[0].index;
-                        console.log(`Dia: ${labels[index]}, Porcentagem: ${percentages[index]}%`);
-                    }
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Erro ao criar o gráfico:', error);
-    }
+  if (window.myChart) {
+      window.myChart.destroy();
+  }
+
+  try {
+      window.myChart = new Chart(context, {
+          type: 'bar',
+          data: {
+              labels: labels,
+              datasets: [{
+                  label: 'Tarefas Concluídas',
+                  data: data,
+                  backgroundColor: colors,
+                  borderWidth: 1,
+                  borderRadius: 5
+              }]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                  y: {
+                      beginAtZero: true,
+                      ticks: { stepSize: 1 }
+                  }
+              },
+              plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                      enabled: true,
+                      callbacks: {
+                          label: function(context) {
+                              const index = context.dataIndex;
+                              const completed = data[index];
+                              const percentage = percentages[index];
+                              return `Concluídas: ${completed} (${percentage}%)`;
+                          }
+                      }
+                  }
+              },
+              onClick: (event, elements) => {
+                  if (elements.length > 0) {
+                      const index = elements[0].index;
+                      console.log(`Dia: ${labels[index]}, Porcentagem: ${percentages[index]}%`);
+                  }
+              }
+          }
+      });
+  } catch (error) {
+      console.error('Erro ao criar o gráfico:', error);
+  }
+}
+
+function simulateDayChange() {
+    localStorage.setItem('lastDate', 'Mon Mar 31 2025');
+    checkDayChange();
 }
 
 window.onload = function() {
