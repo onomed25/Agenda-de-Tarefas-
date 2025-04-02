@@ -1,39 +1,32 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda</title>
-    <!-- Link para o manifest.json -->
+    <title>Todo List</title>
     <link rel="manifest" href="/manifest.json">
-    <!-- Links para os arquivos CSS -->
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Agenda - <span id="completion-percentage">0%</span> Concluído</h1>
+        <h1>Todo List - <span id="completion-percentage">0%</span> Completed</h1>
         <ul id="todo-list"></ul>
         <div class="button-group">
-            <button onclick="addTodo()">Adicionar</button>
-            <button onclick="window.location.href='chart.html'">Gráficos</button>
+            <button onclick="addTodo()">Add</button>
+            <button onclick="window.location.href='chart.html'">Chart</button>
         </div>
     </div>
 
-    <!-- Biblioteca js-cookie -->
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
-    <!-- Seus scripts -->
     <script src="script.js"></script>
-
-    <!-- Registro do Service Worker -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Service Worker registrado!'))
-            .catch(err => console.log('Erro ao registrar Service Worker: ', err));
-        });
-      }
-    </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('Service Worker registrado!'))
+        .catch(err => console.log('Erro: ', err));
+    });
+  }
+</script>
 </body>
-</html>
+</html> não funcionou esse e o meu índex se isso ajudar em alguma coisa
