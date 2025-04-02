@@ -269,4 +269,4 @@ window.onload = function() {
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
     }
-}; pode me falar tudo que esse código faz?
+}; 
