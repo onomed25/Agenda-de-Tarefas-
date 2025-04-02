@@ -1,22 +1,22 @@
 let todos = [];
 let dailyStats = {};
 
-function loadDataFromCookies() {
-    const todosCookie = document.cookie.split('; ').find(cookie => cookie.startsWith('todos='));
-    if (todosCookie) {
-        todos = JSON.parse(decodeURIComponent(todosCookie.split('=')[1]));
-    }
-    
-    const statsCookie = document.cookie.split('; ').find(cookie => cookie.startsWith('dailyStats='));
-    if (statsCookie) {
-        dailyStats = JSON.parse(decodeURIComponent(statsCookie.split('=')[1]));
+function loadDataFromLocalStorage() {
+    const todosData = localStorage.getItem('todos');
+    if (todosData) todos = JSON.parse(todosData);
+
+    const statsData = localStorage.getItem('dailyStats');
+    if (statsData) {
+        dailyStats = JSON.parse(statsData);
     } else {
         initializeStats();
     }
-    
+
     checkDayChange();
     renderTodos();
     renderChart();
+    scheduleTaskNotifications();
+    loadDarkMode();
 }
 
 function initializeStats() {
@@ -37,19 +37,18 @@ function checkDayChange() {
     const lastDate = localStorage.getItem('lastDate') || today;
 
     if (lastDate !== today) {
-        // Desmarca todas as tarefas concluídas
         todos.forEach(todo => todo.completed = false);
 
         const newStats = {};
         const todayDate = new Date();
-        
+
         for (let i = 0; i < 7; i++) {
             const date = new Date(todayDate);
             date.setDate(todayDate.getDate() - (6 - i));
             const dateStr = date.toDateString();
             if (i === 6) {
                 newStats[dateStr] = {
-                    completed: todos.filter(todo => todo.completed).length, // Será 0 após desmarcar
+                    completed: todos.filter(todo => todo.completed).length,
                     total: todos.length
                 };
             } else {
@@ -58,48 +57,50 @@ function checkDayChange() {
                 newStats[dateStr] = dailyStats[prevDate.toDateString()] || { completed: 0, total: 0 };
             }
         }
-        
+
         dailyStats = newStats;
         localStorage.setItem('lastDate', today);
-        saveDataInCookies();
-        renderTodos(); // Atualiza a lista imediatamente
-        renderChart(); // Atualiza o gráfico imediatamente
+        saveDataInLocalStorage();
+        renderTodos();
+        renderChart();
     }
 }
 
-function saveDataInCookies() {
-    document.cookie = `todos=${encodeURIComponent(JSON.stringify(todos))}; path=/; max-age=31536000`;
-    document.cookie = `dailyStats=${encodeURIComponent(JSON.stringify(dailyStats))}; path=/; max-age=31536000`;
+function saveDataInLocalStorage() {
+    localStorage.setItem('todos', JSON.stringify(todos));
+    localStorage.setItem('dailyStats', JSON.stringify(dailyStats));
 }
 
 function addTodo() {
     const taskInput = document.getElementById('new-todo');
     const timeInput = document.getElementById('task-time');
-    if (!taskInput || !timeInput) return;
+    const priorityInput = document.getElementById('task-priority');
+    if (!taskInput || !timeInput || !priorityInput) return;
 
     const taskText = taskInput.value.trim();
     const taskTime = timeInput.value;
+    const taskPriority = priorityInput.value;
 
-    if (taskText && taskTime) {
+    if (taskText && taskTime && taskPriority) {
         const newTodo = {
             id: Date.now(),
             text: taskText,
             time: taskTime,
+            priority: taskPriority,
             completed: false
         };
         todos.push(newTodo);
-
         todos.sort((a, b) => a.time.localeCompare(b.time));
-
         updateTodayStats();
-        saveDataInCookies();
+        saveDataInLocalStorage();
         renderTodos();
         renderChart();
-
+        scheduleTaskNotifications();
         taskInput.value = '';
         timeInput.value = '';
+        priorityInput.value = 'medium';
     } else {
-        alert('Por favor, adicione uma tarefa e um horário.');
+        alert('Por favor, adicione uma tarefa, horário e prioridade.');
     }
 }
 
@@ -108,7 +109,7 @@ function toggleTodo(id) {
     if (todo) {
         todo.completed = !todo.completed;
         updateTodayStats();
-        saveDataInCookies();
+        saveDataInLocalStorage();
         renderTodos();
         renderChart();
     }
@@ -117,15 +118,35 @@ function toggleTodo(id) {
 function deleteTodo(id) {
     todos = todos.filter(t => t.id !== id);
     updateTodayStats();
-    saveDataInCookies();
+    saveDataInLocalStorage();
     renderTodos();
     renderChart();
+}
+
+function editTodo(id) {
+    const todo = todos.find(t => t.id === id);
+    if (todo) {
+        const newText = prompt("Editar tarefa:", todo.text);
+        const newTime = prompt("Editar horário (HH:MM):", todo.time);
+        const newPriority = prompt("Editar prioridade (high, medium, low):", todo.priority);
+        if (newText && newTime && newPriority) {
+            todo.text = newText.trim();
+            todo.time = newTime.trim();
+            todo.priority = newPriority.trim();
+            todos.sort((a, b) => a.time.localeCompare(b.time));
+            updateTodayStats();
+            saveDataInLocalStorage();
+            renderTodos();
+            renderChart();
+            scheduleTaskNotifications();
+        }
+    }
 }
 
 function unmarkAll() {
     todos.forEach(todo => todo.completed = false);
     updateTodayStats();
-    saveDataInCookies();
+    saveDataInLocalStorage();
     renderTodos();
     renderChart();
 }
@@ -150,9 +171,7 @@ function updateProgress() {
     }
 
     const progressText = document.getElementById('progress-text');
-    if (progressText) {
-        progressText.textContent = `${percentage}%`;
-    }
+    if (progressText) progressText.textContent = `${percentage}%`;
 }
 
 function renderTodos() {
@@ -163,26 +182,23 @@ function renderTodos() {
     }
 
     taskList.innerHTML = '';
-
     todos.forEach(todo => {
         const li = document.createElement('li');
         const taskContent = document.createElement('span');
         taskContent.className = 'task-content';
-        taskContent.textContent = `${todo.text} - ${todo.time}`;
-        if (todo.completed) {
-            taskContent.classList.add('completed');
-        }
+        taskContent.textContent = `${todo.text} - ${todo.time} [${todo.priority}]`;
+        if (todo.completed) taskContent.classList.add('completed');
 
         li.innerHTML = `
             <input type="checkbox" ${todo.completed ? 'checked' : ''} onclick="toggleTodo(${todo.id})" />
         `;
         li.appendChild(taskContent);
         li.innerHTML += `
+            <button onclick="editTodo(${todo.id})">✏️</button>
             <button onclick="deleteTodo(${todo.id})">🗑️</button>
         `;
         taskList.appendChild(li);
     });
-
     updateProgress();
 }
 
@@ -193,12 +209,10 @@ function renderChart() {
         return;
     }
 
-    const context = ctx.getContext('2d');
     const today = new Date();
     const labels = [];
-    const data = [];
-    const percentages = [];
-    const colors = ['#3498db', '#2ecc71', '#e74c3c', '#9b59b6', '#f1c40f', '#e67e22', '#1abc9c'];
+    const completedData = [];
+    const totalData = [];
 
     for (let i = 0; i < 7; i++) {
         const date = new Date(today);
@@ -206,66 +220,105 @@ function renderChart() {
         const dateStr = date.toDateString();
         const stats = dailyStats[dateStr] || { completed: 0, total: 0 };
         labels.push(date.toLocaleDateString('pt-BR', { weekday: 'short' }));
-        data.push(stats.completed);
-        percentages.push(stats.total ? Math.round((stats.completed / stats.total) * 100) : 0);
+        completedData.push(stats.completed);
+        totalData.push(stats.total);
     }
 
-    if (window.myChart) {
-        window.myChart.destroy();
-    }
+    if (window.myChart) window.myChart.destroy();
 
-    try {
-        window.myChart = new Chart(context, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
+    window.myChart = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
                     label: 'Tarefas Concluídas',
-                    data: data,
-                    backgroundColor: colors,
+                    data: completedData,
+                    backgroundColor: '#3498db',
                     borderWidth: 1,
                     borderRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 1 }
-                    }
                 },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        enabled: true,
-                        callbacks: {
-                            label: function(context) {
-                                const index = context.dataIndex;
-                                const completed = data[index];
-                                const percentage = percentages[index];
-                                return `Concluídas: ${completed} (${percentage}%)`;
-                            }
-                        }
-                    }
-                },
-                onClick: (event, elements) => {
-                    if (elements.length > 0) {
-                        const index = elements[0].index;
-                        console.log(`Dia: ${labels[index]}, Porcentagem: ${percentages[index]}%`);
-                    }
+                {
+                    label: 'Total de Tarefas (Tendência)',
+                    data: totalData,
+                    type: 'line',
+                    borderColor: '#e74c3c',
+                    fill: false,
+                    tension: 0.1
                 }
-            }
-        });
-    } catch (error) {
-        console.error('Erro ao criar o gráfico:', error);
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+            plugins: { legend: { display: true } }
+        }
+    });
+}
+
+function scheduleTaskNotifications() {
+    const now = new Date();
+    todos.forEach(todo => {
+        const [hours, minutes] = todo.time.split(':').map(Number);
+        const taskDate = new Date(now);
+        taskDate.setHours(hours, minutes, 0, 0);
+
+        const timeUntilNotification = taskDate - now - (5 * 60 * 1000); // 5 minutos antes
+        if (timeUntilNotification > 0 && !todo.completed) {
+            setTimeout(() => {
+                if (!todo.completed) {
+                    alert(`Lembrete: "${todo.text}" em 5 minutos! (${todo.time})`);
+                }
+            }, timeUntilNotification);
+        }
+    });
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+}
+
+function loadDarkMode() {
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
     }
+}
+
+function showTaskStats() {
+    let maxTotalDay = null;
+    let maxTotal = -1;
+    let maxCompletedDay = null;
+    let maxCompleted = -1;
+
+    for (const [dateStr, stats] of Object.entries(dailyStats)) {
+        if (stats.total > maxTotal) {
+            maxTotal = stats.total;
+            maxTotalDay = dateStr;
+        }
+        if (stats.completed > maxCompleted) {
+            maxCompleted = stats.completed;
+            maxCompletedDay = dateStr;
+        }
+    }
+
+    const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+
+    const message = `
+        Dia com mais tarefas: ${maxTotalDay ? formatDate(maxTotalDay) : 'Nenhum dado'} (${maxTotal} tarefas)\n
+        Dia em que mais concluiu tarefas: ${maxCompletedDay ? formatDate(maxCompletedDay) : 'Nenhum dado'} (${maxCompleted} tarefas concluídas)
+    `;
+    console.log(message);
+    alert(message);
 }
 
 window.onload = function() {
     try {
-        loadDataFromCookies();
+        loadDataFromLocalStorage();
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
     }
