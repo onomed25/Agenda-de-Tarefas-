@@ -81,6 +81,45 @@
     .back-btn:hover {
       background-color: #2980b9;
     }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #3498db;
+      padding: 12px 16px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .graph-btn {
+      background-color: white;
+      color: #3498db;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      font-size: 14px;
+    }
+    .graph-btn:hover {
+      background-color: #ecf0f1;
+      transform: scale(1.05);
+    }
+    .container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 20px;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -89,20 +128,14 @@
     <button class="graph-btn" onclick="window.location.href='index.html'">📋 Lista de Tarefas</button>
     <span>📊 Gráfico</span>
   </div>
+    </div>
 
-  <div class="container">
-    <h1>Desempenho Semanal</h1>
+    <!-- Gráfico -->
     <div class="chart-container">
       <canvas id="dailyTasksChart"></canvas>
     </div>
-    <button class="back-btn" onclick="window.location.href='index.html'">Voltar</button>
   </div>
 
   <script src="script.js"></script>
-  <script>
-    window.onload = function() {
-      renderChart();
-    };
-  </script>
 </body>
 </html>
