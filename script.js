@@ -154,6 +154,13 @@ function renderTodos() {
     const percentage = getCompletionPercentage();
     document.getElementById('completion-percentage').textContent = `${percentage}%`;
 
+    // Ordenar tarefas pelo horário
+    todos.sort((a, b) => {
+        const timeA = timeToMinutes(a.time);
+        const timeB = timeToMinutes(b.time);
+        return timeA - timeB;
+    });
+
     todos.forEach(todo => {
         const li = document.createElement('li');
         li.className = todo.completed ? 'completed' : '';
