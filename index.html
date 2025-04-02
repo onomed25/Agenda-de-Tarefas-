@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de Tarefas</title>
-  <link rel="stylesheet" href="style.css"> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tarefas</title>
+      <link rel="stylesheet" href="style.css"> 
   <style>
     * {
       margin: 0;
@@ -61,26 +61,27 @@
  </style>
 </head>
 <body>
-  <div class="navbar">
-    <span>📋 Lista de Tarefas</span>
-    <button class="graph-btn" onclick="window.location.href='gráfico.html'">📊 Gráfico</button>
-  </div>
-  <div class="container">
-    <div class="progress-ring">
-      <svg>
-        <circle class="background-circle" r="36" cx="40" cy="40"></circle>
-        <circle class="progress-circle" r="36" cx="40" cy="40" stroke-dasharray="226.195" stroke-dashoffset="0"></circle>
-      </svg>
-      <span id="progress-text">0%</span>
+    <h1>Lista de Tarefas</h1>
+    
+    <div id="task-form">
+        <input type="text" id="new-todo" placeholder="Nova tarefa">
+        <input type="time" id="task-time">
+        <select id="task-priority">
+            <option value="high">Alta</option>
+            <option value="medium" selected>Média</option>
+            <option value="low">Baixa</option>
+        </select>
+        <button onclick="addTodo()">Adicionar</button>
     </div>
-    <div class="input-container">
-      <input type="text" id="new-todo" placeholder="Adicionar nova tarefa..." />
-      <input type="time" id="task-time" />
-      <button onclick="addTodo()">+</button>
-    </div>
-    <ul class="task-list" id="task-list"></ul>
-    <button class="unmark-all-btn" onclick="unmarkAll()">Desmarcar Todas</button>
-  </div>
-  <script src="script.js"></script>
+    
+    <ul id="task-list"></ul>
+    
+    <button onclick="unmarkAll()">Desmarcar todas</button>
+    <button onclick="showTaskStats()">Ver Estatísticas</button>
+    <button onclick="toggleDarkMode()">Modo Escuro</button>
+    
+    <canvas id="dailyTasksChart"></canvas>
+    
+    <script src="script.js"></script>
 </body>
 </html>
