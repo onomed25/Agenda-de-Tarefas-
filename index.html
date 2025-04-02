@@ -1,86 +1,22 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de Tarefas</title>
-  <link rel="stylesheet" href="style.css"> 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f3f4f6;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100vh;
-    }
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #3498db;
-      padding: 12px 16px;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      width: 100%;
-      max-width: 400px;
-      border-radius: 8px;
-      margin-top: 10px;
-    }
-    .graph-btn {
-      background-color: white;
-      color: #3498db;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      font-size: 14px;
-    }
-    .graph-btn:hover {
-      background-color: #ecf0f1;
-      transform: scale(1.05);
-    }
-    .container {
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      width: 100%;
-      max-width: 400px;
-      margin-top: 20px;
-    }
-  </style>
- </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="navbar">
-    <span>📋 Lista de Tarefas</span>
-    <button class="graph-btn" onclick="window.location.href='gráfico.html'">📊 Gráfico</button>
-  </div>
-  <div class="container">
-    <div class="progress-ring">
-      <svg>
-        <circle class="background-circle" r="36" cx="40" cy="40"></circle>
-        <circle class="progress-circle" r="36" cx="40" cy="40" stroke-dasharray="226.195" stroke-dashoffset="0"></circle>
-      </svg>
-      <span id="progress-text">0%</span>
+    <div class="container">
+        <h1>Todo List - <span id="completion-percentage">0%</span> Completed</h1>
+        <ul id="todo-list"></ul>
+        <div class="button-group">
+            <button onclick="addTodo()">Add</button>
+            <button onclick="window.location.href='chart.html'">Chart</button>
+        </div>
     </div>
-    <div class="input-container">
-      <input type="text" id="new-todo" placeholder="Adicionar nova tarefa..." />
-      <input type="time" id="task-time" />
-      <button onclick="addTodo()">+</button>
-    </div>
-    <ul class="task-list" id="task-list"></ul>
-    <button class="unmark-all-btn" onclick="unmarkAll()">Desmarcar Todas</button>
-  </div>
-  <script src="script.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

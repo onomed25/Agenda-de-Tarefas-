@@ -1,0 +1,173 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #222;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+    font-size: 1.6em;
+    color: #ddd;
+    margin-bottom: 15px;
+}
+
+#completion-percentage {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+#todo-list {
+    list-style: none;
+    padding: 0;
+    max-height: 60vh;
+    overflow-y: auto;
+    background-color: #333;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+#todo-list li {
+    padding: 15px;
+    border-bottom: 1px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 50px;
+}
+
+#todo-list li.completed .task-text {
+    text-decoration: line-through;
+    color: #888;
+}
+
+#todo-list li input[type="checkbox"] {
+    margin-right: 15px;
+    width: 20px;
+    height: 20px;
+}
+
+#todo-list li div:first-child {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    word-break: break-word;
+}
+
+#todo-list li div:last-child {
+    display: flex;
+    gap: 10px;
+}
+
+#todo-list li button {
+    padding: 8px;
+    font-size: 1.2em;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#todo-list li button.edit {
+    color: #FFC107;
+}
+
+#todo-list li button.edit:hover {
+    color: #FFD700;
+}
+
+#todo-list li button.delete {
+    color: #FF5733;
+}
+
+#todo-list li button.delete:hover {
+    color: #FF8C66;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+button {
+    flex: 1;
+    padding: 15px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    min-height: 50px;
+}
+
+button:nth-child(1) { background-color: #4CAF50; } /* Add */
+button:nth-child(2) { background-color: #2196F3; } /* Chart */
+
+button:hover {
+    opacity: 0.9;
+}
+
+canvas {
+    background-color: #333;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100% !important;
+    height: auto !important;
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.4em;
+    }
+
+    #todo-list li {
+        padding: 12px;
+    }
+
+    #todo-list li button {
+        font-size: 1.1em;
+        width: 35px;
+        height: 35px;
+    }
+
+    button {
+        font-size: 1.1em;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 400px) {
+    .container {
+        padding: 10px;
+    }
+
+    #todo-list li {
+        padding: 10px;
+    }
+
+    #todo-list li input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+
+    #todo-list li button {
+        font-size: 1em;
+        width: 30px;
+        height: 30px;
+    }
+}
