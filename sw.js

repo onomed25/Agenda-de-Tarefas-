@@ -2,7 +2,7 @@ const CACHE_NAME = 'agenda-cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/estilos.css',
+  '/styles.css',
   '/script.js',
   '/imagens/icone-192.png'
 ];
