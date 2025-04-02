@@ -22,20 +22,22 @@ function showChart() {
             labels: displayDates,
             datasets: [
                 {
-                    label: 'Total',
-                    data: total,
-                    backgroundColor: '#FF5733',
-                    borderColor: '#FF5733',
-                    borderWidth: 1
-                },
-                {
                     label: 'Completed',
                     data: completed,
                     type: 'line',
                     borderColor: '#4CAF50',
                     backgroundColor: '#4CAF50',
                     fill: false,
-                    tension: 0.1
+                    tension: 0.1,
+                    order: 1 // Ordem menor (fica atrás)
+                },
+                {
+                    label: 'Total',
+                    data: total,
+                    backgroundColor: '#FF5733',
+                    borderColor: '#FF5733',
+                    borderWidth: 1,
+                    order: 2 // Ordem maior (fica na frente)
                 }
             ]
         },
@@ -53,4 +55,4 @@ function showChart() {
 }
 
 // Inicialização
-showChart();
+document.addEventListener("DOMContentLoaded", showChart);
