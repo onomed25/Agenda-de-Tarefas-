@@ -62,24 +62,24 @@ function cleanUncompletedTasks() {
 function checkNotifications() {
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
+  
     todos.forEach(todo => {
-        if (todo.notified) return;
-        const taskMinutes = timeToMinutes(todo.time);
-        if (taskMinutes === -1) return;
-
-        if (currentMinutes === taskMinutes - 1) {
-            if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification(`Reminder: Task in 1 minute - ${todo.text} at ${todo.time}`);
-            } else {
-                alert(`Reminder: Task in 1 minute - ${todo.text} at ${todo.time}`);
-            }
-            todo.notified = true;
-            saveData();
+      if (todo.notified) return;
+      const taskMinutes = timeToMinutes(todo.time);
+      if (taskMinutes === -1) return;
+  
+      if (currentMinutes === taskMinutes - 1) {
+        if ('Notification' in window && Notification.permission === 'granted' && navigator.onLine) {
+          new Notification(`Reminder: Task in 1 minute - ${todo.text} at ${todo.time}`);
+        } else {
+          console.log(`Reminder (offline): Task in 1 minute - ${todo.text} at ${todo.time}`);
+          alert(`Reminder: Task in 1 minute - ${todo.text} at ${todo.time}`);
         }
+        todo.notified = true;
+        saveData();
+      }
     });
-}
-
+  }
 setInterval(checkNotifications, 60000);
 
 function showAddModal() {
@@ -170,33 +170,56 @@ function updateTodayStats() {
 function getCompletionPercentage() {
     const total = todos.length;
     const completed = todos.filter(t => t.completed).length;
-    return total > 0 ? Math.round((completed / total) * 100) : 0; // Arredondado para inteiro
+    return total > 0 ? Math.round((completed / total) * 100) : 0;
 }
 
 function renderTodos() {
     const list = document.getElementById('todo-list');
     if (!list) return;
-    list.innerHTML = '';
+    list.innerHTML = ''; // Limpa a lista
+
     const percentage = getCompletionPercentage();
     const percentageElement = document.getElementById('completion-percentage');
-    if (percentageElement) percentageElement.textContent = `${percentage}%`;
+    if (percentageElement) percentageElement.textContent = `${percentage}`;
 
     todos.sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
 
     todos.forEach(todo => {
         const li = document.createElement('li');
         li.className = todo.completed ? 'completed' : '';
-        li.innerHTML = `
-            <div>
-                <input type="checkbox" value="${todo.id}" ${todo.completed ? 'checked' : ''} 
-                       onchange="toggleTodo(${todo.id})">
-                <span class="task-text">${todo.text} - ${todo.time} [${todo.priority}]</span>
-            </div>
-            <div>
-                <button class="edit" onclick="showEditModal(${todo.id})">✏️</button>
-                <button class="delete" onclick="deleteTodo(${todo.id})">🗑️</button>
-            </div>
-        `;
+
+        // Container interno
+        const divContent = document.createElement('div');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = todo.id;
+        checkbox.checked = todo.completed;
+        checkbox.addEventListener('change', () => toggleTodo(todo.id));
+
+        const taskText = document.createElement('span');
+        taskText.className = 'task-text';
+        taskText.textContent = `${todo.text} - ${todo.time} [${todo.priority}]`;
+
+        divContent.appendChild(checkbox);
+        divContent.appendChild(taskText);
+
+        // Botões
+        const divButtons = document.createElement('div');
+        const editButton = document.createElement('button');
+        editButton.className = 'edit';
+        editButton.textContent = '✏️';
+        editButton.addEventListener('click', () => showEditModal(todo.id));
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'delete';
+        deleteButton.textContent = '🗑️';
+        deleteButton.addEventListener('click', () => deleteTodo(todo.id));
+
+        divButtons.appendChild(editButton);
+        divButtons.appendChild(deleteButton);
+
+        li.appendChild(divContent);
+        li.appendChild(divButtons);
         list.appendChild(li);
     });
 }
