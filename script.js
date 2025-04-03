@@ -69,51 +69,76 @@ function checkNotifications() {
         if (taskMinutes === -1) return;
 
         if (currentMinutes === taskMinutes - 1) {
-            alert(`Reminder: Task in 1 minute - ${todo.text} at ${todo.time}`);
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(`Reminder: Task in 1 minute - ${todo.text} at ${todo.time}`);
+            } else {
+                alert(`Reminder: Task in 1 minute - ${todo.text} at ${todo.time}`);
+            }
             todo.notified = true;
             saveData();
         }
     });
 }
 
-setInterval(checkNotifications, 10000);
+setInterval(checkNotifications, 60000);
 
-function addTodo() {
-    const text = prompt('Task description:');
-    if (!text) return;
+function showAddModal() {
+    document.getElementById('addModal').style.display = 'flex';
+    document.getElementById('taskText').focus();
+}
 
-    const now = new Date();
-    const defaultTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const time = prompt(`Time (default ${defaultTime}):`, defaultTime) || defaultTime;
+function showEditModal(id) {
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
 
-    const priority = prompt('Priority (low, medium, high):', 'low') || 'low';
+    document.getElementById('editText').value = todo.text;
+    document.getElementById('editTime').value = todo.time;
+    document.getElementById('editPriority').value = todo.priority;
+    document.getElementById('editModal').dataset.id = id;
+    document.getElementById('editModal').style.display = 'flex';
+    document.getElementById('editText').focus();
+}
+
+function hideModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function addTodo(event) {
+    event.preventDefault();
+    const text = document.getElementById('taskText').value;
+    const time = document.getElementById('taskTime').value;
+    const priority = document.getElementById('taskPriority').value;
+
+    if (!text || !time) return;
+
     todos.push({
-        id: todos.length + 1,
+        id: Date.now(),
         text,
         time,
-        priority: ['low', 'medium', 'high'].includes(priority) ? priority : 'low',
+        priority,
         completed: false,
         notified: false
     });
     updateTodayStats();
     saveData();
     renderTodos();
+    hideModal('addModal');
+    document.getElementById('addForm').reset();
 }
 
-function editTodo(id) {
+function editTodo(event) {
+    event.preventDefault();
+    const id = parseInt(document.getElementById('editModal').dataset.id);
     const todo = todos.find(t => t.id === id);
     if (!todo) return;
 
-    const text = prompt('Edit task description:', todo.text) || todo.text;
-    const time = prompt('Edit time:', todo.time) || todo.time;
-    const priority = prompt('Edit priority (low, medium, high):', todo.priority) || todo.priority;
-
-    todo.text = text;
-    todo.time = time;
-    todo.priority = ['low', 'medium', 'high'].includes(priority) ? priority : 'low';
+    todo.text = document.getElementById('editText').value;
+    todo.time = document.getElementById('editTime').value;
+    todo.priority = document.getElementById('editPriority').value;
     todo.notified = false;
     saveData();
     renderTodos();
+    hideModal('editModal');
 }
 
 function deleteTodo(id) {
@@ -145,21 +170,18 @@ function updateTodayStats() {
 function getCompletionPercentage() {
     const total = todos.length;
     const completed = todos.filter(t => t.completed).length;
-    return total > 0 ? (completed / total * 100).toFixed(1) : 0;
+    return total > 0 ? Math.round((completed / total) * 100) : 0; // Arredondado para inteiro
 }
 
 function renderTodos() {
     const list = document.getElementById('todo-list');
+    if (!list) return;
     list.innerHTML = '';
     const percentage = getCompletionPercentage();
-    document.getElementById('completion-percentage').textContent = `${percentage}%`;
+    const percentageElement = document.getElementById('completion-percentage');
+    if (percentageElement) percentageElement.textContent = `${percentage}%`;
 
-    // Ordenar tarefas pelo horário
-    todos.sort((a, b) => {
-        const timeA = timeToMinutes(a.time);
-        const timeB = timeToMinutes(b.time);
-        return timeA - timeB;
-    });
+    todos.sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
 
     todos.forEach(todo => {
         const li = document.createElement('li');
@@ -171,7 +193,7 @@ function renderTodos() {
                 <span class="task-text">${todo.text} - ${todo.time} [${todo.priority}]</span>
             </div>
             <div>
-                <button class="edit" onclick="editTodo(${todo.id})">✏️</button>
+                <button class="edit" onclick="showEditModal(${todo.id})">✏️</button>
                 <button class="delete" onclick="deleteTodo(${todo.id})">🗑️</button>
             </div>
         `;
@@ -180,6 +202,15 @@ function renderTodos() {
 }
 
 // Inicialização
-migrateFromCookies();
-cleanUncompletedTasks();
-renderTodos();
+document.addEventListener('DOMContentLoaded', () => {
+    migrateFromCookies();
+    cleanUncompletedTasks();
+    renderTodos();
+
+    if ('Notification' in window && Notification.permission !== 'denied') {
+        Notification.requestPermission();
+    }
+
+    document.getElementById('addForm').addEventListener('submit', addTodo);
+    document.getElementById('editForm').addEventListener('submit', editTodo);
+});

@@ -1,30 +1,42 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #222;
+    font-family: 'Roboto', Arial, sans-serif; /* Adicionada fonte mais nítida */
+    background-color: #1a1a1a;
     color: #fff;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased; /* Melhora renderização em telas HD */
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .container {
-    max-width: 100%;
-    width: 100%;
-    margin: 0 auto;
+    width: 90%;
+    max-width: 800px;
+    margin: 15px auto;
     padding: 15px;
     box-sizing: border-box;
+    text-align: center;
+}
+
+header {
+    margin-bottom: 20px;
 }
 
 h1 {
-    text-align: center;
-    font-size: 1.6em;
+    font-size: 1.8em; /* Aumentado para melhor visibilidade */
     color: #ddd;
-    margin-bottom: 15px;
+    margin: 0 0 10px 0;
+}
+
+.progress {
+    font-size: 1.3em; /* Aumentado para números mais claros */
+    color: #ccc;
 }
 
 #completion-percentage {
     color: #4CAF50;
     font-weight: bold;
+    font-size: 1.4em; /* Destaque maior */
 }
 
 #todo-list {
@@ -113,41 +125,151 @@ button {
     color: white;
     cursor: pointer;
     min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-button:nth-child(1) { background-color: #4CAF50; } /* Add */
-button:nth-child(2) { background-color: #2196F3; } /* Chart */
+button:nth-child(1) { background-color: #4CAF50; }
+button:nth-child(2) { background-color: #2196F3; }
 
 button:hover {
     opacity: 0.9;
 }
 
+.icon {
+    font-size: 1.4em;
+}
+
 canvas {
+    width: 100% !important;
+    height: 300px !important;
     background-color: #333;
     padding: 10px;
     border-radius: 8px;
-    width: 100% !important;
-    height: auto !important;
 }
 
+/* Estilo do tooltip */
+#statsTooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    font-size: 14px; /* Aumentado para melhor legibilidade */
+    pointer-events: none;
+    display: none;
+    z-index: 10;
+    max-width: 200px;
+    line-height: 1.4;
+}
+
+#statsTooltip .highlight {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+/* Estilo dos modais */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal-content {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h2 {
+    margin: 0 0 15px;
+    font-size: 1.5em; /* Aumentado */
+    color: #ddd;
+}
+
+.modal-content label {
+    display: block;
+    margin: 10px 0 5px;
+    font-size: 1.1em; /* Aumentado */
+    color: #ccc;
+}
+
+.modal-content input,
+.modal-content select {
+    width: 100%;
+    padding: 8px;
+    font-size: 1.1em; /* Aumentado */
+    border: 1px solid #444;
+    border-radius: 4px;
+    background-color: #222;
+    color: #fff;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-buttons button {
+    flex: 1;
+    padding: 10px;
+    font-size: 1.1em; /* Aumentado */
+    min-height: auto;
+}
+
+.modal-buttons button:first-child {
+    background-color: #FF5733;
+}
+
+.modal-buttons button:last-child {
+    background-color: #4CAF50;
+}
+
+/* Media queries para telas menores */
 @media (max-width: 600px) {
     h1 {
-        font-size: 1.4em;
+        font-size: 1.5em;
     }
-
+    .progress {
+        font-size: 1.1em;
+    }
+    #completion-percentage {
+        font-size: 1.2em;
+    }
     #todo-list li {
         padding: 12px;
     }
-
     #todo-list li button {
         font-size: 1.1em;
         width: 35px;
         height: 35px;
     }
-
     button {
         font-size: 1.1em;
         padding: 12px;
+    }
+    canvas {
+        height: 250px !important;
+    }
+    #statsTooltip {
+        font-size: 12px;
+    }
+    .modal-content {
+        width: 85%;
     }
 }
 
@@ -155,19 +277,29 @@ canvas {
     .container {
         padding: 10px;
     }
-
+    h1 {
+        font-size: 1.3em;
+    }
+    .progress {
+        font-size: 1em;
+    }
+    #completion-percentage {
+        font-size: 1.1em;
+    }
     #todo-list li {
         padding: 10px;
     }
-
     #todo-list li input[type="checkbox"] {
         width: 18px;
         height: 18px;
     }
-
     #todo-list li button {
         font-size: 1em;
         width: 30px;
         height: 30px;
+    }
+    button {
+        font-size: 1em;
+        padding: 10px;
     }
 }

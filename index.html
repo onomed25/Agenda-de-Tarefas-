@@ -8,11 +8,70 @@
 </head>
 <body>
     <div class="container">
-        <h1>Todo List - <span id="completion-percentage">0%</span> Completed</h1>
-        <ul id="todo-list"></ul>
-        <div class="button-group">
-            <button onclick="addTodo()">Add</button>
-            <button onclick="window.location.href='chart.html'">Chart</button>
+        <header>
+            <h1>Todo List</h1>
+            <div class="progress">
+                <span id="completion-percentage">0%</span> Completed
+            </div>
+        </header>
+        <main>
+            <ul id="todo-list"></ul>
+        </main>
+        <footer>
+            <div class="button-group">
+                <button onclick="showAddModal()" aria-label="Add new task">
+                    <span class="icon">➕</span> Add
+                </button>
+                <button onclick="window.location.href='chart.html'" aria-label="View progress chart">
+                    <span class="icon">📊</span> Chart
+                </button>
+            </div>
+        </footer>
+
+        <!-- Modal para adicionar tarefa -->
+        <div id="addModal" class="modal">
+            <div class="modal-content">
+                <h2>Add Task</h2>
+                <form id="addForm">
+                    <label for="taskText">Task:</label>
+                    <input type="text" id="taskText" required>
+                    <label for="taskTime">Time:</label>
+                    <input type="time" id="taskTime" required>
+                    <label for="taskPriority">Priority:</label>
+                    <select id="taskPriority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                    <div class="modal-buttons">
+                        <button type="button" onclick="hideModal('addModal')">Cancel</button>
+                        <button type="submit">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal para editar tarefa -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <h2>Edit Task</h2>
+                <form id="editForm">
+                    <label for="editText">Task:</label>
+                    <input type="text" id="editText" required>
+                    <label for="editTime">Time:</label>
+                    <input type="time" id="editTime" required>
+                    <label for="editPriority">Priority:</label>
+                    <select id="editPriority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                    <div class="modal-buttons">
+                        <button type="button" onclick="hideModal('editModal')">Cancel</button>
+                        <button type="submit">Save</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
