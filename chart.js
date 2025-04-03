@@ -29,12 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     backgroundColor: '#4CAF50',
                     fill: false,
                     tension: 0.1,
-<<<<<<< HEAD
                     borderWidth: 3,
                     order: 1
-=======
-                    order: 1 // Ordem menor (fica atrás)
->>>>>>> f542b3117ec470ab8849cad6954574012444d6e4
                 },
                 {
                     label: 'Total',
@@ -42,11 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     backgroundColor: '#FF5733',
                     borderColor: '#FF5733',
                     borderWidth: 1,
-<<<<<<< HEAD
                     order: 2
-=======
-                    order: 2 // Ordem maior (fica na frente)
->>>>>>> f542b3117ec470ab8849cad6954574012444d6e4
                 }
             ]
         },
@@ -128,12 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-<<<<<<< HEAD
     // Ajustar altura do canvas
     const canvas = document.getElementById('progressChart');
     if (canvas) canvas.style.height = '300px';
 });
-=======
-// Inicialização
-document.addEventListener("DOMContentLoaded", showChart);
->>>>>>> f542b3117ec470ab8849cad6954574012444d6e4
